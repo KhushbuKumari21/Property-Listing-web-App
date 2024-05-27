@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Property Listing Application</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 0;
+      text-align: center;
+    }
+    .container {
+      max-width: 960px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="password"],
+    input[type="radio"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    input[type="submit"] {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+    .property {
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      padding: 20px;
+    }
+    .property h3 {
+      margin-top: 0;
+    }
+    .property p {
+      margin: 5px 0;
+    }
+    .button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .button:hover {
+      background-color: #45a049;
+    }
+    .filters {
+      margin-bottom: 20px;
+    }
+    .filter-input {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Property Listing Application</h1>
+  </header>
+  <div class="container">
+    <!-- Registration Form -->
+    <div id="registration" style="display: block;">
+      <h2>Registration</h2>
+      <form id="registration-form">
+        <div class="form-group">
+          <label for="first-name">First Name:</label>
+          <input type="text" id="first-name" required>
+        </div>
+        <div class="form-group">
+          <label for="last-name">Last Name:</label>
+          <input type="text" id="last-name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number:</label>
+          <input type="tel" id="phone" required>
+        </div>
+        <div class="form-group">
+          <label>User Type:</label>
+          <input type="radio" id="seller" name="user-type" value="seller" required>
+          <label for="seller">Seller</label>
+          <input type="radio" id="buyer" name="user-type" value="buyer" required>
+          <label for="buyer">Buyer</label>
+        </div>
+        <input type="submit" value="Register">
+      </form>
+    </div>
+
+    <!-- Seller Flow -->
+    <div id="seller-flow" style="display: none;">
+      <h2>Seller Flow</h2>
+      <div class="form-group">
+        <label for="area">Area:</label>
+        <input type="text" id="area" required>
+      </div>
+      <div class="form-group">
+        <label for="bedrooms">Bedrooms:</label>
+        <input type="number" id="bedrooms" required>
+      </div>
+      <div class="form-group">
+        <label for="bathrooms">Bathrooms:</label>
+        <input type="number" id="bathrooms" required>
+      </div>
+      <div class="form-group">
+        <label for="proximity">Proximity to Hospitals & Colleges:</label>
+        <input type="text" id="proximity" required>
+      </div>
+      <input type="submit" value="Post Property" onclick="postProperty()">
+      <div id="posted-properties"></div>
+    </div>
+
+    <!-- Buyer Flow -->
+    <div id="buyer-flow" style="display: none;">
+      <h2>Buyer Flow</h2>
+      <div class="filters">
+        <label for="bedrooms-filter">Bedrooms:</label>
+        <input type="number" id="bedrooms-filter" class="filter-input">
+        <label for="bathrooms-filter">Bathrooms:</label>
+        <input type="number" id="bathrooms-filter" class="filter-input">
+        <label for="proximity-filter">Proximity:</label>
+        <input type="text" id="proximity-filter" class="filter-input">
+        <button class="button" onclick="applyFilters()">Apply Filters</button>
+      </div>
+      <div id="property-list"></div>
+    </div>
+  </div>
+
+  <script>
+    let users = [];
+    let properties = [];
+
+    // Function to register user
+    document.getElementById('registration-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const firstName = document.getElementById('first-name').value.trim();
+      const lastName = document.getElementById('last-name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const userType = document.querySelector('input[name="user-type"]:checked').value;
+      const user = { firstName, lastName, email, phone, userType };
+      users.push(user);
+      alert('Registration Successful!');
+      document.getElementById('registration').style.display = 'none';
+      if (userType === 'seller') {
+        document.getElementById('seller-flow').style.display = 'block';
+      } else {
+        document.getElementById('buyer-flow').style.display = 'block';
+      }
+    });
+
+    // Function to post property
+    function postProperty() {
+      const area = document.getElementById('area').value.trim();
+      const bedrooms = document.getElementById('bedrooms').value.trim();
+      const bathrooms = document.getElementById('bathrooms').value.trim();
+      const proximity = document.getElementById('proximity').value.trim();
+      const property = { area, bedrooms, bathrooms, proximity };
+      properties.push(property);
+      renderPostedProperties();
+    }
+
+    // Function to render posted properties
+    function renderPostedProperties() {
+      const postedProperties = document.getElementById('posted-properties');
+      postedProperties.innerHTML = '';
+      properties.forEach((property, index) => {
+        const propertyDiv = document.createElement('div');
+        propertyDiv.classList.add('property');
+        propertyDiv.innerHTML = `
+          <h3>Property ${index + 1}</h3>
+          <p>Area: ${property.area}</p>
+          <p>Bedrooms: ${property.bedrooms}</p>
+          <p>Bathrooms: ${property.bathrooms}</p>
+          <p>Proximity to Hospitals & Colleges: ${property.proximity}</p>
+          <button class="button" onclick="deleteProperty(${index})">Delete Property</button>
+          <button class="button" onclick="editProperty(${index})">Edit Property</button> <!-- Add an "Edit" button -->
+        `;
+        postedProperties.appendChild(propertyDiv);
+      });
+    }
+
+    // Function to delete a posted property
+    function deleteProperty(index) {
+      properties.splice(index, 1);
+      renderPostedProperties();
+    }
+
+    // Function to edit a posted property
+    function editProperty(index) {
+      const property = properties[index];
+      const area = prompt("Enter new area:", property.area);
+      const bedrooms = prompt("Enter new number of bedrooms:", property.bedrooms);
+      const bathrooms = prompt("Enter new number of bathrooms:", property.bathrooms);
+      const proximity = prompt("Enter new proximity to Hospitals & Colleges:", property.proximity);
+
+      // Update property details
+      properties[index] = { area, bedrooms, bathrooms, proximity };
+      renderPostedProperties();
+    }
+
+    // Function to apply filters
+    function applyFilters() {
+      const bedroomsFilter = document.getElementById('bedrooms-filter').value.trim();
+      const bathroomsFilter = document.getElementById('bathrooms-filter').value.trim();
+      const proximityFilter = document.getElementById('proximity-filter').value.trim();
+
+      // Filter properties based on the criteria
+      const filteredProperties = properties.filter(property => {
+        return (
+          (!bedroomsFilter || property.bedrooms == bedroomsFilter) &&
+          (!bathroomsFilter || property.bathrooms == bathroomsFilter) &&
+          (!proximityFilter || property.proximity.includes(proximityFilter))
+        );
+      });
+
+      renderFilteredProperties(filteredProperties);
+    }
+
+    // Function to render filtered properties
+    function renderFilteredProperties(filteredProperties) {
+      const propertyList = document.getElementById('property-list');
+      propertyList.innerHTML = '';
+      filteredProperties.forEach(property => {
+        const propertyDiv = document.createElement('div');
+        propertyDiv.classList.add('property');
+        propertyDiv.innerHTML = `
+          <h3>Area: ${property.area}</h3>
+          <p>Bedrooms: ${property.bedrooms}</p>
+          <p>Bathrooms: ${property.bathrooms}</p>
+          <p>Proximity to Hospitals & Colleges: ${property.proximity}</p>
+          <button class="button" onclick="showSellerDetails('${property.area}', '${property.bedrooms}', '${property.bathrooms}', '${property.proximity}')">I'm Interested</button>
+        `;
+        propertyList.appendChild(propertyDiv);
+      });
+    }
+
+    // Function to show seller details when buyer is interested
+    function showSellerDetails(area, bedrooms, bathrooms, proximity) {
+      // You can implement this function to display seller details
+      alert(`Seller Details:\nArea: ${area}\nBedrooms: ${bedrooms}\nBathrooms: ${bathrooms}\nProximity: ${proximity}`);
+    }
+  </script>
+</body>
+</html>
+ 
